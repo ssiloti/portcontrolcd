@@ -1,0 +1,24 @@
+[package]
+name = "portcontrolcd"
+version = "0.1.0"
+authors = ["Steven Siloti <ssiloti@gmail.com>"]
+edition = "2018"
+license = "GPL-3.0-or-later"
+
+[profile.release]
+lto = true
+opt-level = 'z'
+
+[dependencies]
+clap = "2.33"
+directories = "2.0"
+libc = "0.2"
+mio = "0.6"
+netlink-packet-core = "0.1.0"
+netlink-packet-route = "0.1.1"
+rand = "0.7"
+rust-ini = "0.13.0"
+
+[dependencies.netlink-sys]
+version = "0.2.0"
+features = ["mio_socket"]
