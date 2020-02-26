@@ -392,7 +392,7 @@ fn build_pcp_map_request(
 	local_addr: &SocketAddr,
 	nonce: &[u8; 12],
 	mapping: &Mapping,
-) -> Option<Vec<u8>> {
+) -> Vec<u8> {
 	let mut b = Vec::new();
 	b.push(rfc_6887::Version::Pcp as u8);
 	b.push(rfc_6887::Opcode::Map as u8);
@@ -426,7 +426,7 @@ fn build_pcp_map_request(
 	} else {
 		extend_from_pcp_address(&local_addr.ip(), &mut b);
 	}
-	Some(b)
+	b
 }
 
 fn retransmit_mapping(
@@ -440,7 +440,7 @@ fn retransmit_mapping(
 		&sock.local_addr().ok()?,
 		nonce,
 		&(map.0, map.1),
-	)?;
+	);
 	sock.send(&req).ok()?;
 	map.1.rt_count = map.1.rt_count.saturating_add(1);
 	map.1.rt = match map.1.expires {
@@ -882,17 +882,17 @@ fn update_local_addrs(
 							)
 							.expect("Failed to register PCP socket");
 
-							if let Some(req) = build_pcp_map_request(
+							let req = build_pcp_map_request(
 								DEFAULT_LIFETIME,
 								&local_addr,
 								&addr.nonce,
 								&(key, mapped_mapping),
-							) {
-								match addr.sock.send(&req) {
-									Err(e) => println!("Error writing to PCP socket: {}", e),
-									_ => (),
-								};
-							}
+							);
+
+							match addr.sock.send(&req) {
+								Err(e) => println!("Error writing to PCP socket: {}", e),
+								_ => (),
+							};
 						}
 					}
 				}
