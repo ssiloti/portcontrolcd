@@ -13,3 +13,12 @@ Key | Value
 Interface | The name of a network inferface on which to map the port. If this key is ommitted the port is mapped on all interfaces.
 Port | The port number to map. Required.
 Protocol | The name of the protocol to map. E.g. `TCP` or `UDP`. If this key is ommitted the port is mapped for all protocols. Mapping all protocols may not be supported by the PCP server.
+
+## Example configuration
+
+```ini
+; This goes into ~/.config/portcontrolcd/ssh.conf
+[ssh server]
+Port = 22
+Protocol = TCP
+```
