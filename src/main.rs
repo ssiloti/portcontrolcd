@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use clap::{App, Arg};
 use directories::ProjectDirs;
 use ini::Ini;
+use int_enum::IntEnum;
 use libc::{c_char, if_indextoname, IF_NAMESIZE};
 use mio::net::UdpSocket;
 use mio::Poll;
@@ -87,6 +88,8 @@ pub mod rfc_6887 {
 	}
 
 	// Section 7.4
+	#[derive(Debug, Copy, Clone, int_enum::IntEnum)]
+	#[repr(u8)]
 	pub enum ResultCode {
 		Success = 0,
 		UnsuppVersion = 1,
@@ -552,7 +555,12 @@ fn incoming_msg(addr: &mut LocalAddress, mut msg: &[u8]) -> Option<()> {
 		// TODO error handling
 
 		if result_code != rfc_6887::ResultCode::Success as u8 {
-			println!("Error from PCP server {}", result_code);
+			println!(
+				"Error from PCP server: {}",
+				rfc_6887::ResultCode::from_int(result_code)
+					.map(|c| format!("{:?} ({})", c, result_code))
+					.unwrap_or_else(|_| format!("{} (unknown error)", result_code)),
+			);
 			// miniupnpd returns a lifetime of zero for some errors
 			// treat these as long lifetime errors
 			if lifetime == Duration::from_secs(0) {
