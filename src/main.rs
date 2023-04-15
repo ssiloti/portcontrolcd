@@ -582,6 +582,11 @@ fn incoming_msg(addr: &mut LocalAddress, mut msg: &[u8]) -> Option<()> {
 				mapping.rt = rfc_6887::subsequent_rt(mapping.rt);
 				return None;
 			}
+		} else {
+			println!(
+				"Mapping was established, external address is [{}]:{}",
+				external_address, external_port
+			);
 		}
 
 		mapping.external_address = external_address;
