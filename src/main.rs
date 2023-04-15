@@ -688,6 +688,13 @@ fn cmp_socket_addr(l: SocketAddr, r: SocketAddr) -> bool {
 	}
 }
 
+// TODO replace with Ipv6Addr's is_unicast_link_local once that is stablized
+fn is_unicast_link_local(addr: &Ipv6Addr) -> bool {
+    // Copied from Ipv6Addr::is_unicast_link_local, whose stabilization has not seen any activity
+    // in years
+    (addr.segments()[0] & 0xffc0) == 0xfe80
+}
+
 fn update_local_addr(addrs: &mut Vec<LocalAddress>, rtnl_msg: &RtnlMessage) -> Option<()> {
 	match rtnl_msg {
 		RtnlMessage::NewAddress(na_msg) => {
@@ -701,9 +708,7 @@ fn update_local_addr(addrs: &mut Vec<LocalAddress>, rtnl_msg: &RtnlMessage) -> O
 					let ip_addr = addr_from_vec(a)?;
 					match ip_addr {
 						IpAddr::V6(a6) => {
-							// TODO enable once is_unicast_link_local is stablized
-							//if a6.is_unicast_link_local() {
-							if false {
+							if is_unicast_link_local(&a6) {
 								SocketAddr::V6(SocketAddrV6::new(a6, 0, 0, na_msg.header.index))
 							} else {
 								SocketAddr::new(ip_addr, 0)
